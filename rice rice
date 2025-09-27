@@ -1,0 +1,41 @@
+#include <Wire.h>
+#include "Adafruit_TCS34725.h"
+
+Adafruit_TCS34725 tcs = Adafruit_TCS34725();
+
+void setup() {
+  Serial.begin(9600);
+  if (tcs.begin()) {
+    Serial.println("TCS34725 เริ่มทำงาน");
+  } else {
+    Serial.println("ไม่พบเซนเซอร์ TCS34725");
+    while (1);
+  }
+}
+
+void loop() {
+  uint16_t r, g, b, c;
+  tcs.getRawData(&r, &g, &b, &c);
+
+  String nitrogen = "";
+  String fertilizer = "";
+
+  if(g >= 200) {
+    nitrogen = "สูง ✅";
+    fertilizer = "ไม่ต้องใส่ปุ๋ย";
+  } else if(g >= 150) {
+    nitrogen = "ปานกลาง ⚠️";
+    fertilizer = "แนะนำใส่ยูเรีย 10–20 g/ตร.ม.";
+  } else {
+    nitrogen = "ต่ำ ❌";
+    fertilizer = "แนะนำใส่ยูเรีย 20–30 g/ตร.ม.";
+  }
+
+  Serial.print("R:"); Serial.print(r);
+  Serial.print(" G:"); Serial.print(g);
+  Serial.print(" B:"); Serial.print(b);
+  Serial.print(" -> Nitrogen: "); Serial.print(nitrogen);
+  Serial.print(" | Fertilizer: "); Serial.println(fertilizer);
+
+  delay(1000);
+}
