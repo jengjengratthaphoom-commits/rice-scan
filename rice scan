@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สแกนสีใบข้าว</title>
+<style>
+  body { font-family: sans-serif; text-align: center; padding: 20px; }
+  video { width: 100%; max-width: 400px; border: 1px solid #ccc; }
+  #result { margin-top: 20px; font-size: 1.5em; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h2>สแกนสีใบข้าว</h2>
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas" style="display:none;"></canvas>
+<p id="result">กำลังวัดสี...</p>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const result = document.getElementById('result');
+
+// เปิดกล้องหลัง
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+  .then(stream => video.srcObject = stream)
+  .catch(err => result.innerText = "ไม่สามารถเปิดกล้อง: " + err);
+
+// ฟังก์ชันวัดสี
+function checkColor() {
+  ctx.drawImage(video, 0, 0, 200, 200);
+  let data = ctx.getImageData(100, 100, 1, 1).data; // จุดกลาง
+  let r = data[0], g = data[1], b = data[2];
+
+  if(g > r && g > b) {
+    result.innerText = `✅ ใบข้าวเขียวปกติ (R:${r} G:${g} B:${b})`;
+    result.style.color = "green";
+  } else if(r > g && r > b) {
+    result.innerText = `⚠️ ใบข้าวเหลือง/ซีด (R:${r} G:${g} B:${b})`;
+    result.style.color = "orange";
+  } else {
+    result.innerText = `🔹 สีไม่ชัดเจน (R:${r} G:${g} B:${b})`;
+    result.style.color = "blue";
+  }
+}
+
+// ตรวจทุก 1 วินาที
+setInterval(checkColor, 1000);
+</script>
+
+</body>
+</html>
